@@ -1,14 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const { getReviews, addReview, upvoteReview } = require("../controllers/ReviewController");
+const { addOrUpdateReview, getBuildingHierarchy, getFloorReviews } = require("../controllers/ReviewController");
 
-// Get all reviews
-router.get("/", getReviews);
+// Ensure the function exists before using it
+if (!addOrUpdateReview) {
+  console.error("❌ ERROR: addOrUpdateReview is not defined in reviewController.js");
+}
 
-// Add a new review
-router.post("/", addReview);
+// POST: Add or update a review (Building → Floor → Review)
+router.post("/", addOrUpdateReview);
 
-// Upvote a review
-router.put("/:id/upvote", upvoteReview);
+// GET: Entire hierarchy of a building
+router.get("/building/:building", getBuildingHierarchy);
+
+// GET: All reviews from a specific floor in a building
+router.get("/building/:building/floor/:floor", getFloorReviews);
 
 module.exports = router;
