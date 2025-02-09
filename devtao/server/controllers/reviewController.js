@@ -1,9 +1,9 @@
 const Building = require("../models/Building");
 
-// ✅ 1. Add or Update a Review (Handles Images)
+// ✅ Add or Update a Review (Handles Images)
 const addOrUpdateReview = async (req, res) => {
   try {
-    const { building, floor, review, rating } = req.body;
+    const { building, floor, review, efficiency, quality } = req.body;
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
     if (!imagePath) {
@@ -25,7 +25,12 @@ const addOrUpdateReview = async (req, res) => {
     }
 
     // Add the new review to the floor
-    floorDoc.reviews.push({ review, rating: Number(rating), image: imagePath });
+    floorDoc.reviews.push({ 
+      review, 
+      efficiency: Number(efficiency), 
+      quality: Number(quality), 
+      image: imagePath 
+    });
 
     await buildingDoc.save();
     res.status(201).json({ message: "Review added successfully!", building: buildingDoc });
@@ -35,7 +40,7 @@ const addOrUpdateReview = async (req, res) => {
   }
 };
 
-// ✅ 2. Get the Entire Hierarchy of a Building (Building → Floors → Reviews)
+// ✅ Fetch Entire Building (Building → Floors → Reviews)
 const getBuildingHierarchy = async (req, res) => {
   try {
     const buildingName = req.params.building;
@@ -52,7 +57,7 @@ const getBuildingHierarchy = async (req, res) => {
   }
 };
 
-// ✅ 3. Get All Reviews for a Specific Floor in a Building
+// ✅ Fetch Reviews for a Specific Floor
 const getFloorReviews = async (req, res) => {
   try {
     const { building, floor } = req.params;

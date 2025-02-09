@@ -1,11 +1,11 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
-const { addOrUpdateReview, getBuildingHierarchy, getFloorReviews } = require("../controllers/reviewController");
+const { addOrUpdateReview, getBuildingHierarchy, getFloorReviews } = require("../controllers/ReviewController");
 
 const router = express.Router();
 
-// Multer Configuration (Saves Images to `/uploads`)
+// Multer Configuration (Stores images in `/uploads`)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
@@ -17,13 +17,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ✅ Route: Add Review (with Image)
+// ✅ Handle Review Submission (Accepts Image)
 router.post("/", upload.single("image"), addOrUpdateReview);
 
-// ✅ Route: Get Building Hierarchy
+// ✅ Fetch Building Hierarchy
 router.get("/building/:building", getBuildingHierarchy);
 
-// ✅ Route: Get Reviews by Floor
+// ✅ Fetch Floor Reviews
 router.get("/building/:building/floor/:floor", getFloorReviews);
 
 module.exports = router;
