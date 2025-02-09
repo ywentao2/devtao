@@ -1,9 +1,14 @@
 const Building = require("../models/Building");
 
-// ✅ 1. Add or Update a Review (Building → Floor → Review)
+// ✅ 1. Add or Update a Review (Handles Images)
 const addOrUpdateReview = async (req, res) => {
   try {
     const { building, floor, review, rating } = req.body;
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+    if (!imagePath) {
+      return res.status(400).json({ message: "Image is required." });
+    }
 
     let buildingDoc = await Building.findOne({ name: building });
 
@@ -13,14 +18,14 @@ const addOrUpdateReview = async (req, res) => {
     }
 
     // Check if the floor exists
-    let floorDoc = buildingDoc.floors.find((f) => f.floorNumber === floor);
+    let floorDoc = buildingDoc.floors.find((f) => f.floorNumber === Number(floor));
     if (!floorDoc) {
-      floorDoc = { floorNumber: floor, reviews: [] };
+      floorDoc = { floorNumber: Number(floor), reviews: [] };
       buildingDoc.floors.push(floorDoc);
     }
 
     // Add the new review to the floor
-    floorDoc.reviews.push({ review, rating });
+    floorDoc.reviews.push({ review, rating: Number(rating), image: imagePath });
 
     await buildingDoc.save();
     res.status(201).json({ message: "Review added successfully!", building: buildingDoc });
@@ -30,7 +35,7 @@ const addOrUpdateReview = async (req, res) => {
   }
 };
 
-// ✅ 2. Get the Entire Hierarchy of a Building
+// ✅ 2. Get the Entire Hierarchy of a Building (Building → Floors → Reviews)
 const getBuildingHierarchy = async (req, res) => {
   try {
     const buildingName = req.params.building;
@@ -47,7 +52,7 @@ const getBuildingHierarchy = async (req, res) => {
   }
 };
 
-// ✅ 3. Get Reviews by Floor in a Building
+// ✅ 3. Get All Reviews for a Specific Floor in a Building
 const getFloorReviews = async (req, res) => {
   try {
     const { building, floor } = req.params;
@@ -70,5 +75,5 @@ const getFloorReviews = async (req, res) => {
   }
 };
 
-// ✅ Ensure functions are defined BEFORE exporting them
+// ✅ Ensure All Functions Are Exported
 module.exports = { addOrUpdateReview, getBuildingHierarchy, getFloorReviews };

@@ -1,19 +1,29 @@
 const express = require("express");
+const multer = require("multer");
+const path = require("path");
+const { addOrUpdateReview, getBuildingHierarchy, getFloorReviews } = require("../controllers/reviewController");
+
 const router = express.Router();
-const { addOrUpdateReview, getBuildingHierarchy, getFloorReviews } = require("../controllers/ReviewController");
 
-// Ensure the function exists before using it
-if (!addOrUpdateReview) {
-  console.error("❌ ERROR: addOrUpdateReview is not defined in reviewController.js");
-}
+// Multer Configuration (Saves Images to `/uploads`)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
 
-// POST: Add or update a review (Building → Floor → Review)
-router.post("/", addOrUpdateReview);
+const upload = multer({ storage });
 
-// GET: Entire hierarchy of a building
+// ✅ Route: Add Review (with Image)
+router.post("/", upload.single("image"), addOrUpdateReview);
+
+// ✅ Route: Get Building Hierarchy
 router.get("/building/:building", getBuildingHierarchy);
 
-// GET: All reviews from a specific floor in a building
+// ✅ Route: Get Reviews by Floor
 router.get("/building/:building/floor/:floor", getFloorReviews);
 
 module.exports = router;
